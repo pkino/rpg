@@ -1,4 +1,44 @@
-body { font-family: sans-serif; text-align: center; margin-top: 50px; }
-#log { width: 500px; margin: 10px auto; border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: scroll; }
-button { margin: 5px; }
-#choices button { margin: 5px; }
+body {
+  font-family: sans-serif;
+  text-align: center;
+  margin-top: 50px;
+  background: linear-gradient(#eef, #ddf);
+}
+
+#log {
+  width: 500px;
+  margin: 10px auto;
+  border: 1px solid #ccc;
+  padding: 10px;
+  height: 200px;
+  overflow-y: scroll;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+button {
+  margin: 5px;
+  padding: 5px 10px;
+}
+
+#choices button {
+  margin: 5px;
+}
+
+#enemy-image {
+  font-size: 80px;
+  height: 100px;
+  line-height: 100px;
+  margin: 20px auto;
+  width: 100px;
+}
+
+.hit {
+  animation: hit 0.3s;
+}
+
+@keyframes hit {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+  100% { transform: translateX(0); }
+}
