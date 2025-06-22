@@ -41,4 +41,24 @@ button {
   25% { transform: translateX(-10px); }
   75% { transform: translateX(10px); }
   100% { transform: translateX(0); }
+
+#map {
+  width: 200px;
+  height: 200px;
+  margin: 10px auto;
+  display: grid;
+  grid-template-columns: repeat(5, 40px);
+  grid-template-rows: repeat(5, 40px);
+  gap: 1px;
+}
+
+.cell {
+  width: 40px;
+  height: 40px;
+  background: #eee;
+  border: 1px solid #ccc;
+}
+
+.player {
+  background: #f66;
 }
