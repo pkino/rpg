@@ -15,6 +15,13 @@ class Character {
 const logEl = document.getElementById('log');
 const statusEl = document.getElementById('status');
 const choicesEl = document.getElementById('choices');
+const enemyImageEl = document.getElementById('enemy-image');
+
+const enemySprites = {
+  'スライム': '🟢',
+  'ゴブリン': '👹',
+  'ドラゴン': '🐉'
+};
 const mapEl = document.getElementById('map');
 
 const mapWidth = 5;
@@ -73,10 +80,18 @@ player.items = { potion: 1 };
 let enemy;
 let scene = 0;
 
+function updateEnemyImage() {
+  if (enemy && enemySprites[enemy.name]) {
+    enemyImageEl.textContent = enemySprites[enemy.name];
+  } else {
+    enemyImageEl.textContent = '';
+  }
+  enemyImageEl.classList.remove('hit');
+}
+
 function updateStatus() {
-  statusEl.textContent =
-    `あなたのHP: ${player.hp}/${player.maxHp}` +
-    (enemy ? ` ${enemy.name}のHP: ${enemy.hp}` : '');
+  statusEl.textContent = `あなたのHP: ${player.hp}/${player.maxHp}` + (enemy ? ` ${enemy.name}のHP: ${enemy.hp}` : '');
+  updateEnemyImage();
 }
 
 function addLog(message) {
@@ -130,6 +145,8 @@ function playerAttack() {
   const dmg = Math.floor(Math.random() * player.attackPower) + 1;
   enemy.hp -= dmg;
   addLog(`あなたの攻撃！${enemy.name}に${dmg}のダメージ！`);
+  enemyImageEl.classList.add('hit');
+  setTimeout(() => enemyImageEl.classList.remove('hit'), 300);
   if (!enemy.isAlive()) {
     addLog(`${enemy.name}を倒した！`);
     enemy = null;
