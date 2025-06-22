@@ -15,13 +15,66 @@ class Character {
 const logEl = document.getElementById('log');
 const statusEl = document.getElementById('status');
 const choicesEl = document.getElementById('choices');
+const mapEl = document.getElementById('map');
+
+const mapWidth = 5;
+const mapHeight = 5;
+let playerPos = { x: 0, y: 0 };
+
+function drawMap() {
+  mapEl.style.gridTemplateColumns = `repeat(${mapWidth}, 40px)`;
+  mapEl.style.gridTemplateRows = `repeat(${mapHeight}, 40px)`;
+  mapEl.innerHTML = '';
+  for (let y = 0; y < mapHeight; y++) {
+    for (let x = 0; x < mapWidth; x++) {
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      cell.dataset.x = x;
+      cell.dataset.y = y;
+      mapEl.appendChild(cell);
+    }
+  }
+  updatePlayerPos();
+}
+
+function updatePlayerPos() {
+  const cells = mapEl.querySelectorAll('.cell');
+  cells.forEach(c => c.classList.remove('player'));
+  const idx = playerPos.y * mapWidth + playerPos.x;
+  if (cells[idx]) cells[idx].classList.add('player');
+}
+
+function movePlayer(dx, dy) {
+  const nx = playerPos.x + dx;
+  const ny = playerPos.y + dy;
+  if (nx >= 0 && nx < mapWidth && ny >= 0 && ny < mapHeight && !enemy) {
+    playerPos.x = nx;
+    playerPos.y = ny;
+    updatePlayerPos();
+  }
+}
+
+document.addEventListener('keydown', e => {
+  switch (e.key) {
+    case 'ArrowUp':
+      movePlayer(0, -1); break;
+    case 'ArrowDown':
+      movePlayer(0, 1); break;
+    case 'ArrowLeft':
+      movePlayer(-1, 0); break;
+    case 'ArrowRight':
+      movePlayer(1, 0); break;
+  }
+});
 
 const player = new Character('勇者', 40, 40, 6, 4);
 let enemy;
 let scene = 0;
 
 function updateStatus() {
-  statusEl.textContent = `あなたのHP: ${player.hp}/${player.maxHp}` + (enemy ? `    ${enemy.name}のHP: ${enemy.hp}` : '');
+  statusEl.textContent =
+    `あなたのHP: ${player.hp}/${player.maxHp}` +
+    (enemy ? ` ${enemy.name}のHP: ${enemy.hp}` : '');
 }
 
 function addLog(message) {
@@ -112,4 +165,5 @@ function nextScene() {
   updateStatus();
 }
 
+drawMap();
 nextScene();
