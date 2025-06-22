@@ -68,6 +68,8 @@ document.addEventListener('keydown', e => {
 });
 
 const player = new Character('勇者', 40, 40, 6, 4);
+// プレイヤーの所持道具
+player.items = { potion: 1 };
 let enemy;
 let scene = 0;
 
@@ -93,6 +95,34 @@ function addChoice(text, handler) {
   btn.textContent = text;
   btn.onclick = handler;
   choicesEl.appendChild(btn);
+}
+
+// 戦闘時の選択肢を表示
+function showBattleOptions() {
+  addChoice('攻撃', playerAttack);
+  addChoice('回復', playerHeal);
+  if (player.items.potion > 0) {
+    addChoice('道具', useItemMenu);
+  }
+}
+
+// 道具メニュー
+function useItemMenu() {
+  clearChoices();
+  if (player.items.potion > 0) {
+    addChoice('薬草を使う', () => {
+      player.items.potion--;
+      const healAmount = 10;
+      player.hp = Math.min(player.maxHp, player.hp + healAmount);
+      addLog(`薬草を使った！HPが${healAmount}回復した！`);
+      enemyAttack();
+      updateStatus();
+      showBattleOptions();
+    });
+  } else {
+    addLog('使える道具がない！');
+  }
+  addChoice('戻る', showBattleOptions);
 }
 
 function playerAttack() {
@@ -142,20 +172,17 @@ function nextScene() {
     case 1:
       addLog('森でスライムが現れた！');
       enemy = new Character('スライム', 15, 15, 3);
-      addChoice('攻撃', playerAttack);
-      addChoice('回復', playerHeal);
+      showBattleOptions();
       break;
     case 2:
       addLog('さらに奥へ進むとゴブリンが立ち塞がった！');
       enemy = new Character('ゴブリン', 20, 20, 4);
-      addChoice('攻撃', playerAttack);
-      addChoice('回復', playerHeal);
+      showBattleOptions();
       break;
     case 3:
       addLog('ボスのドラゴンが現れた！');
       enemy = new Character('ドラゴン', 40, 40, 6);
-      addChoice('攻撃', playerAttack);
-      addChoice('回復', playerHeal);
+      showBattleOptions();
       break;
     case 4:
       addLog('ドラゴンを倒した！世界に平和が訪れた...');
