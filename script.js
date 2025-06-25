@@ -78,7 +78,16 @@ const player = new Character('勇者', 40, 40, 6, 4);
 // プレイヤーの所持道具
 player.items = { potion: 1 };
 let enemy;
-let scene = 0;
+let locationIndex = 0;
+let state = 'map';
+
+const mapData = [
+  { description: 'あなたは旅立ちの村にいる。外に出ますか？' },
+  { description: '森に入った。スライムが現れた！', enemy: { name: 'スライム', hp: 15, maxHp: 15, attack: 3 } },
+  { description: 'さらに奥へ進むとゴブリンが立ち塞がった！', enemy: { name: 'ゴブリン', hp: 20, maxHp: 20, attack: 4 } },
+  { description: 'ボスのドラゴンが現れた！', enemy: { name: 'ドラゴン', hp: 40, maxHp: 40, attack: 6 } },
+  { description: 'ドラゴンを倒した！世界に平和が訪れた...' }
+];
 
 function updateEnemyImage() {
   if (enemy && enemySprites[enemy.name]) {
@@ -141,17 +150,14 @@ function useItemMenu() {
 }
 
 function playerAttack() {
-  if (!enemy || !player.isAlive()) return;
+  if (state !== 'battle' || !enemy || !player.isAlive()) return;
   const dmg = Math.floor(Math.random() * player.attackPower) + 1;
   enemy.hp -= dmg;
   addLog(`あなたの攻撃！${enemy.name}に${dmg}のダメージ！`);
   enemyImageEl.classList.add('hit');
   setTimeout(() => enemyImageEl.classList.remove('hit'), 300);
   if (!enemy.isAlive()) {
-    addLog(`${enemy.name}を倒した！`);
-    enemy = null;
-    scene++;
-    nextScene();
+    victory();
   } else {
     enemyAttack();
   }
@@ -159,7 +165,7 @@ function playerAttack() {
 }
 
 function playerHeal() {
-  if (!enemy || !player.isAlive()) return;
+  if (state !== 'battle' || !enemy || !player.isAlive()) return;
   const healAmount = Math.floor(Math.random() * player.healPower) + 1;
   player.hp = Math.min(player.maxHp, player.hp + healAmount);
   addLog(`回復！HPが${healAmount}回復した！`);
@@ -168,7 +174,7 @@ function playerHeal() {
 }
 
 function enemyAttack() {
-  if (!enemy || !enemy.isAlive()) return;
+  if (state !== 'battle' || !enemy || !enemy.isAlive()) return;
   const dmg = Math.floor(Math.random() * 4) + 1;
   player.hp -= dmg;
   addLog(`${enemy.name}の攻撃！あなたは${dmg}のダメージ！`);
@@ -179,7 +185,16 @@ function enemyAttack() {
   }
 }
 
-function nextScene() {
+function victory() {
+  addLog(`${enemy.name}を倒した！`);
+  enemy = null;
+  state = 'map';
+  locationIndex++;
+  showMap();
+}
+
+function showMap() {
+  state = 'map';
   clearChoices();
   switch(scene) {
     case 0:
@@ -204,10 +219,20 @@ function nextScene() {
     case 4:
       addLog('ドラゴンを倒した！世界に平和が訪れた...');
       addChoice('もう一度遊ぶ', () => { location.reload(); });
-      break;
+    }
   }
   updateStatus();
 }
 
-drawMap();
-nextScene();
+function startBattle(enemyData) {
+  enemy = new Character(enemyData.name, enemyData.hp, enemyData.maxHp, enemyData.attack);
+  state = 'battle';
+  clearChoices();
+  addLog(`${enemy.name}が現れた！`);
+  addChoice('攻撃', playerAttack);
+  addChoice('回復', playerHeal);
+  updateStatus();
+}
+
+showMap();
+
